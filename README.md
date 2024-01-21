@@ -1,1 +1,1 @@
-# AWS-Kubernetes-Cluster-Terraform
+# AWS-EKS-Python-Language-Translator-App
