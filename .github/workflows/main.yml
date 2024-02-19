@@ -1,0 +1,65 @@
+name: 'EKS Deployment with Kustomize'
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  CLUSTER_NAME: my-cluster # Define the cluster name here for reuse
+
+jobs:
+  eks-deployment:
+    name: 'Deploy EKS Cluster and Kustomize Resources'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/iac@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: iac test .
+      continue-on-error: true
+
+    - name: Setup AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Install eksctl
+      run: |
+        curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+        sudo mv /tmp/eksctl /usr/local/bin
+        eksctl version
+
+    - name: Check if EKS Cluster exists
+      id: check-cluster
+      run: |
+        if eksctl get cluster --name ${{ env.CLUSTER_NAME }} --region ${{ env.AWS_REGION }}; then
+          echo "Cluster exists. Skipping creation."
+          echo "CLUSTER_EXISTS=true" >> $GITHUB_ENV
+        else
+          echo "Cluster does not exist."
+          echo "CLUSTER_EXISTS=false" >> $GITHUB_ENV
+        fi
+
+    - name: Create EKS Cluster
+      if: env.CLUSTER_EXISTS == 'false'
+      run: |
+        eksctl create cluster --name ${{ env.CLUSTER_NAME }} --version 1.28 --region ${{ env.AWS_REGION }} --nodegroup-name linux-nodes --node-type t3.medium --nodes 2
+
+    - name: Install kustomize
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        sudo mv kustomize /usr/local/bin/
+
+    - name: Deploy with Kustomize
+      run: |
+        kustomize build kustomize | kubectl apply -k ./kustomize
