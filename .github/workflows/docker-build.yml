@@ -36,4 +36,4 @@ jobs:
         IMAGE_NAME: translator-app:${{ env.IMAGE_TAG }}
       run: |
         docker build -t $IMAGE_NAME ./app_code
-        docker push $IMAGE_NAME
+        docker push $ECR_REPOSITORY:$IMAGE_NAME
