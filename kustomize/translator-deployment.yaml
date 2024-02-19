@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: translator-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: translator-app
+  template:
+    metadata:
+      labels:
+        app: translator-app
+    spec:
+      containers:
+      - name: translator-app
+        image: rjones21/pkmn-translator:latest
+        ports:
+        - containerPort: 5000
