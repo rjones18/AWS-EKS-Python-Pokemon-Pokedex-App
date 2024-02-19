@@ -33,7 +33,7 @@ jobs:
     - name: Build, tag, and push Docker image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_NAME: ${{ env.c  }}:${{ env.IMAGE_TAG }}
+        IMAGE_NAME: translator-app:${{ env.IMAGE_TAG }}
       run: |
-        docker build -t $IMAGE_NAME .
+        docker build -t $IMAGE_NAME ./app_code
         docker push $IMAGE_NAME
