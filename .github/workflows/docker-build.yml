@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  ECR_REPOSITORY: translator-app
+  ECR_REPOSITORY: 614768946157.dkr.ecr.us-east-1.amazonaws.com/translator-app:latest
   IMAGE_TAG: latest # Or any other tag you prefer
 
 jobs:
