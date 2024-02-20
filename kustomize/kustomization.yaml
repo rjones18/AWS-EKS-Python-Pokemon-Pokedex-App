@@ -1,4 +1,10 @@
 #kubernetes resources to be managed by kustomize
+namespace: pokedex
+
+images:
+ - name: rjones21/pkmn-pokedex
+   newTag: latest
+
 resources:
-  - translator-deployment.yaml
-  - translator-service.yaml
+  - pokemon-deployment.yaml
+  - pokemon-service.yaml

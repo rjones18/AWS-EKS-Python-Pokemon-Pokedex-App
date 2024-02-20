@@ -1,1 +1,1 @@
-# AWS-EKS-Python-Language-Translator-App
+# AWS-EKS-Pokemon-Pokedex-App
